@@ -9,6 +9,5 @@
         public string WarehouseName { get; set; } = null!;
 
         public string? Location { get; set; }
-
     }
 }

@@ -36,6 +36,20 @@ namespace Server.Controllers
             }
         }
 
+        [HttpGet("{salesInvoiceId:int}/invoicedetails")]
+        public ActionResult<SalesInvoiceDTO> GetInvoiceDetailByInvoiceId(int salesInvoiceId)
+        {
+            try
+            {
+                var salesInvoice = _salesInvoiceService.GetInvoiceDetailsByInvoiceId(salesInvoiceId);
+                return Ok(salesInvoice);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
         [HttpPost]
         public ActionResult CreateSalesInvoice([FromBody] SalesInvoiceInputDTO salesInvoice)
         {

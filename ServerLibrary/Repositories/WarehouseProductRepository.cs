@@ -2,7 +2,7 @@
 
 namespace ServerLibrary.Repositories
 {
-    public class WarehouseProductRepository : AbstractRepository<WarehouseProduct, int>
+    public class WarehouseProductRepository : Repository<WarehouseProduct, int>
     {
         public WarehouseProductRepository(ManagementdbContext context) : base(context)
         {

@@ -2,7 +2,7 @@
 
 namespace ServerLibrary.Repositories
 {
-    public class CustomerRepository : AbstractRepository<Customer, int>
+    public class CustomerRepository : Repository<Customer, int>
     {
         public CustomerRepository(ManagementdbContext context) : base(context)
         {

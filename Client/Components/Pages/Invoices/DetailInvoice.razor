@@ -1,0 +1,103 @@
+﻿@page "/invoice/detail/{invoiceId:int}"
+
+@inject HttpClient HttpClient
+
+<h3>Sale Invoice</h3>
+
+@if (getDataError || invoice is null || invoiceDetails is null)
+{
+    <p>Unable to get data.</p>
+}
+else
+{
+    <div class="vstack gap-3">
+        <div class="p-2">
+            <label class="p-1">Invoice Id:</label>
+            <span>@invoice.InvoiceId</span>
+        </div>
+        <div class="p-2">
+            <label class="p-1">Invoice Date:</label>
+            <span>@invoice.InvoiceNumber</span>
+        </div>
+        <div class="p-2">
+            <label class="p-1">Invoice Date:</label>
+            <span>@invoice.InvoiceDate</span>
+        </div>
+        <div class="p-2">
+            <label class="p-1">Customer Id:</label>
+            <span>@invoice.CustomerId</span>
+        </div>
+        <div class="p-2">
+            <label class="p-1">Customer Name:</label>
+            <span>@invoice.CustomerName</span>
+        </div>
+        <div class="p-2">
+            <label class="p-1">Total Amount:</label>
+            <span>@invoice.TotalAmount</span>
+        </div>
+    </div>
+
+    <h3>Invoice Details</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Invoice Detail Id</th>
+                <th scope="col">Invoice Id</th>
+                <th scope="col">Warehouse Id</th>
+                <th scope="col">Product Id</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">UnitPrice</th>
+                <th scope="col">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var invoiceDetail in invoiceDetails)
+            {
+                <tr>
+                    <td>@invoiceDetail.InvoiceDetailId</td>
+                    <td>@invoiceDetail.InvoiceId</td>
+                    <td>@invoiceDetail.WarehouseId</td>
+                    <td>@invoiceDetail.ProductId</td>
+                    <td>@invoiceDetail.Quantity</td>
+                    <td>@invoiceDetail.UnitPrice</td>
+                    <td>@invoiceDetail.Total</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int invoiceId { get; set; }
+    private SalesInvoiceUiModel? invoice;
+    private IEnumerable<InvoiceDetailUiModel>? invoiceDetails;
+    private bool getDataError;
+    private bool shouldRender;
+
+    protected override bool ShouldRender() => shouldRender;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var invoiceRequest = await HttpClient.GetAsync($"api/salesinvoices/{invoiceId}");
+        var invoiceDetailsRequest = await HttpClient.GetAsync($"api/salesinvoices/{invoiceId}/invoicedetails");
+
+        if (invoiceRequest.IsSuccessStatusCode)
+        {
+            invoice = await invoiceRequest.Content.ReadFromJsonAsync<SalesInvoiceUiModel>();
+        }
+
+        if (invoiceDetailsRequest.IsSuccessStatusCode)
+        {
+            invoiceDetails = await invoiceDetailsRequest.Content.ReadFromJsonAsync<IEnumerable<InvoiceDetailUiModel>>();
+        }
+
+        if (!invoiceRequest.IsSuccessStatusCode || !invoiceDetailsRequest.IsSuccessStatusCode)
+        {
+            getDataError = true;
+        }
+
+        shouldRender = true;
+    }
+}

@@ -7,4 +7,5 @@ public interface ISalesInvoiceService
     void Delete(int salesInvoiceId);
     void Update(int salesInvoiceId, SalesInvoiceInputDTO salesInvoiceInputDTO);
     void Create(SalesInvoiceInputDTO salesInvoiceInputDTO);
+    IEnumerable<InvoiceDetailDTO> GetInvoiceDetailsByInvoiceId(int invoiceId);
 }

@@ -1,0 +1,103 @@
+﻿@page "/warehouse"
+@rendermode InteractiveServer
+
+@using Client.Components.Pages.Popup
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<h3>Warehouse</h3>
+
+@if (getDataError || warehouses is null)
+{
+    <p>Unable to get data.</p>
+}
+else
+{
+    <a class="btn btn-info" href="warehouse/create">Create Warehouse</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Warehouse Id</th>
+                <th scope="col">Warehouse Code</th>
+                <th scope="col">Warehouse Name</th>
+                <th scope="col">Location</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var warehouse in warehouses)
+            {
+                <tr>
+                    <td>@warehouse.WarehouseId</td>
+                    <td>@warehouse.WarehouseCode</td>
+                    <td>@warehouse.WarehouseName</td>
+                    <td>@warehouse.Location</td>
+                    <td>
+                        <a class="btn btn-primary" href="warehouse/edit/@warehouse.WarehouseId">Edit</a>
+                        <button class="btn btn-danger" @onclick="() => ConfirmDelete(warehouse.WarehouseId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <Popup @ref="popup"
+           Title="Delete Confirmation"
+           OnConfirm="() => OnConfirmPopup(currentDeleteWarehouseId)">
+        <p>Are you sure you want to delete this product?</p>
+    </Popup>
+}
+
+@code {
+    private IEnumerable<WarehouseUiModel>? warehouses;
+    private bool getDataError;
+    private bool shouldRender;
+    private int currentDeleteWarehouseId;
+    private Popup? popup;
+
+    protected override bool ShouldRender() => shouldRender;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var request = await HttpClient.GetAsync("api/warehouses");
+            if (request.IsSuccessStatusCode)
+            {
+                warehouses = await request.Content.ReadFromJsonAsync<IEnumerable<WarehouseUiModel>>();
+            }
+            else
+            {
+                getDataError = true;
+            }
+            shouldRender = true;
+        }
+        catch (Exception)
+        {
+            getDataError = true;
+        }
+    }
+
+    private void ConfirmDelete(int warehouseId)
+    {
+        currentDeleteWarehouseId = warehouseId;
+        popup?.Show();
+    }
+
+    private async Task OnConfirmPopup(int warehouseId)
+    {
+        await DeleteProduct(warehouseId);
+    }
+
+    private async Task DeleteProduct(int warehouseId)
+    {
+        var request = await HttpClient.DeleteAsync($"api/warehouses/{warehouseId}");
+        if (request.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/product", true);
+        }
+        else
+        {
+            getDataError = true;
+        }
+    }
+}

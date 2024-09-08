@@ -13,7 +13,10 @@ namespace ServerLibrary.Mappers
     {
         public SalesInvoiceMapper()
         {
-            CreateMap<SalesInvoice, SalesInvoiceDTO>().ReverseMap();
+            CreateMap<SalesInvoice, SalesInvoiceDTO>()
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.CustomerName))
+                .ReverseMap()
+                .ForMember(dest => dest.Customer, opt => opt.Ignore());
             CreateMap<SalesInvoice, SalesInvoiceInputDTO>().ReverseMap();
         }
     }

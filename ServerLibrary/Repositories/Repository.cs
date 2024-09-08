@@ -3,11 +3,11 @@ using ServerLibrary.Models;
 
 namespace ServerLibrary.Repositories
 {
-    public abstract class AbstractRepository<TEntity, TKey> where TEntity : class
+    public class Repository<TEntity, TKey> where TEntity : class
     {
         protected readonly ManagementdbContext _context;
 
-        protected AbstractRepository(ManagementdbContext context)
+        protected Repository(ManagementdbContext context)
         {
             _context = context;
         }
@@ -19,7 +19,7 @@ namespace ServerLibrary.Repositories
 
         public TEntity? GetById(TKey id)
         {
-            return _context.Set<TEntity>().SingleOrDefault(e => e.Equals(id));
+            return _context.Set<TEntity>().Find(id);
         }
 
         public void Create(TEntity entity)

@@ -55,4 +55,14 @@ public class SalesInvoiceService : ISalesInvoiceService
 
         _salesInvoiceRepository.Delete(salesInvoice);
     }
+
+    public IEnumerable<InvoiceDetailDTO> GetInvoiceDetailsByInvoiceId(int invoiceId)
+    {
+        var invoiceDetails = _salesInvoiceRepository.GetInvoiceDetailsByInvoiceId(invoiceId);
+        if (invoiceDetails == null)
+        {
+            throw new KeyNotFoundException($"Invoice details with invoice id {invoiceId} not found");
+        }
+        return _mapper.Map<IEnumerable<InvoiceDetailDTO>>(invoiceDetails);
+    }
 }

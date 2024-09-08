@@ -2,7 +2,7 @@
 
 namespace ServerLibrary.Repositories
 {
-    public class InvoiceDetailRepository : AbstractRepository<InvoiceDetail, int>
+    public class InvoiceDetailRepository : Repository<InvoiceDetail, int>
     {
         public InvoiceDetailRepository(ManagementdbContext context) : base(context)
         {
