@@ -9,10 +9,12 @@ namespace Server.Controllers
     public class WarehouseController : ControllerBase
     {
         private readonly IWarehouseService _warehouseService;
+        private readonly IWarehouseProductService _warehouseProductService;
 
-        public WarehouseController(IWarehouseService warehouseService)
+        public WarehouseController(IWarehouseService warehouseService, IWarehouseProductService warehouseProductService)
         {
             _warehouseService = warehouseService;
+            _warehouseProductService = warehouseProductService;
         }
 
         [HttpGet]
@@ -26,7 +28,20 @@ namespace Server.Controllers
         {
             try
             {
-                return _warehouseService.GetById(warehouseId);
+                return Ok(_warehouseService.GetById(warehouseId));
+            }
+            catch (KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
+        [HttpGet("{warehouseId:int}/products")]
+        public ActionResult<IEnumerable<WarehouseProductDTO>> GetProductsByWarehouseId(int warehouseId)
+        {
+            try
+            {
+                return Ok(_warehouseProductService.GetProductsByWarehouseId(warehouseId));
             }
             catch (KeyNotFoundException e)
             {

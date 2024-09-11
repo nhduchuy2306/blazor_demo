@@ -8,4 +8,5 @@ public interface ISalesInvoiceService
     void Update(int salesInvoiceId, SalesInvoiceInputDTO salesInvoiceInputDTO);
     void Create(SalesInvoiceInputDTO salesInvoiceInputDTO);
     IEnumerable<InvoiceDetailDTO> GetInvoiceDetailsByInvoiceId(int invoiceId);
+    IEnumerable<SalesInvoiceDTO> GetSalesByCustomerId(int customerId);
 }

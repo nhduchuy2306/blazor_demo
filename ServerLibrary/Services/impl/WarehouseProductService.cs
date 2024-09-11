@@ -48,6 +48,18 @@ public class WarehouseProductService : IWarehouseProductService
         return _mapper.Map<WarehouseProductDTO>(warehouseProduct);
     }
 
+    public IEnumerable<WarehouseProductDTO> GetWarehousesByProductId(int productId)
+    {
+        var warehouseProducts = _warehouseProductRepository.GetWarehousesByProductId(productId);
+        return _mapper.Map<IEnumerable<WarehouseProductDTO>>(warehouseProducts);
+    }
+
+    public IEnumerable<WarehouseProductDTO> GetProductsByWarehouseId(int warehouseId)
+    {
+        var warehouseProducts = _warehouseProductRepository.GetProductsByWarehouseId(warehouseId);
+        return _mapper.Map<IEnumerable<WarehouseProductDTO>>(warehouseProducts);
+    }
+
     public void Update(int productId, int warehouseId, WarehouseProductInputDTO warehouseProduct)
     {
         var existingWarehouseProduct = _warehouseProductRepository.GetById(productId, warehouseId);

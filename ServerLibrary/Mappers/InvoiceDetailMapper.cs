@@ -8,7 +8,11 @@ namespace ServerLibrary.Mappers
     {
         public InvoiceDetailMapper()
         {
-            CreateMap<InvoiceDetail, InvoiceDetailDTO>().ReverseMap();
+            CreateMap<InvoiceDetail, InvoiceDetailDTO>()
+                .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.WarehouseProduct.Warehouse.WarehouseName))
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.WarehouseProduct.Product.ProductName))
+                .ReverseMap()
+                .ForMember(dest => dest.WarehouseProduct, opt => opt.Ignore());
             CreateMap<InvoiceDetail, InvoiceDetailInputDTO>().ReverseMap();
         }
     }

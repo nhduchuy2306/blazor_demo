@@ -7,7 +7,6 @@
 
 <h3>Customer</h3>
 
-
 @if (getDataError || customers is null)
 {
     <p>Unable to get data.</p>
@@ -43,15 +42,45 @@ else
             }
         </tbody>
     </table>
+
     <Popup @ref="popup"
            Title="Delete Confirmation"
            OnConfirm="() => OnConfirmPopup(currentDeleteCustomerId)">
-        <p>Are you sure you want to delete this customer?</p>
+        @if (salesInvoices != null && salesInvoices.Count() > 0)
+        {
+            <p>This customer have sales invoices. Can not delete</p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Invoice Id</th>
+                        <th scope="col">Customer Id</th>
+                        <th scope="col">Customer Name</th>
+                        <th scope="col">Invoice Number</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sale in salesInvoices)
+                    {
+                        <tr>
+                            <td>@sale.InvoiceId</td>
+                            <td>@sale.CustomerId</td>
+                            <td>@sale.CustomerName</td>
+                            <td>@sale.InvoiceNumber</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Are you sure you want to delete this customer?</p>
+        }
     </Popup>
 }
 
 @code {
     private IEnumerable<CustomerUiModel>? customers;
+    private IEnumerable<SalesInvoiceUiModel>? salesInvoices;
     private bool getDataError;
     private bool shouldRender;
     private int currentDeleteCustomerId;
@@ -61,11 +90,11 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var request = await HttpClient.GetAsync("api/customers");
+        var customerRequest = await HttpClient.GetAsync("api/customers");
 
-        if (request.IsSuccessStatusCode)
+        if (customerRequest.IsSuccessStatusCode)
         {
-            customers = await request.Content.ReadFromJsonAsync<IEnumerable<CustomerUiModel>>();
+            customers = await customerRequest.Content.ReadFromJsonAsync<IEnumerable<CustomerUiModel>>();
         }
         else
         {
@@ -78,6 +107,27 @@ else
     private void ConfirmDelete(int customerId)
     {
         currentDeleteCustomerId = customerId;
+
+        var salesInvoiceRequest = HttpClient.GetAsync($"api/customers/{customerId}/saleinvoices");
+
+        if (salesInvoiceRequest.Result.IsSuccessStatusCode)
+        {
+            salesInvoices = salesInvoiceRequest.Result.Content.ReadFromJsonAsync<IEnumerable<SalesInvoiceUiModel>>().Result;
+            if(salesInvoices.Count() > 0)
+            {
+                popup.ShowConfirmButton = false;
+            }
+            else
+            {
+                salesInvoices = null;
+                popup.ShowConfirmButton = true;
+            }
+        }
+        else
+        {
+            salesInvoices = null;
+            popup.ShowConfirmButton = true;
+        }
         popup?.Show();
     }
 

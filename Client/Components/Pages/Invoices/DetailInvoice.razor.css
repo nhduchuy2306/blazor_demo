@@ -4,6 +4,7 @@
     justify-content: center;
     align-items: flex-start;
     width: 100%;
+    margin: 0;
 }
 
 .vstack .p-2 {
@@ -11,17 +12,15 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items:center;
-    gap: 20px;
     width: 100%;
 }
 
 .vstack .p-2 label {
-    width: 200px;
+    width: 150px;
 }
 
 .vstack .p-2 span {
     padding: 0.5rem;
     border: 1px solid black;
-    margin: 0.5rem;
     flex: 1;
 }

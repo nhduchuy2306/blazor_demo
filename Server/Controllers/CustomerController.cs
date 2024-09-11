@@ -9,16 +9,24 @@ namespace Server.Controllers
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerService _customerService;
+        private readonly ISalesInvoiceService _salesInvoiceService;
 
-        public CustomerController(ICustomerService customerService)
+        public CustomerController(ICustomerService customerService, ISalesInvoiceService salesInvoiceService)
         {
             _customerService = customerService;
+            _salesInvoiceService = salesInvoiceService;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<CustomerDTO>> GetCustomers()
         {
             return Ok(_customerService.GetAll());
+        }
+
+        [HttpGet("{customerId:int}/saleinvoices")]
+        public ActionResult<IEnumerable<CustomerDTO>> GetSalesByCustomerId(int customerId)
+        {
+            return Ok(_salesInvoiceService.GetSalesByCustomerId(customerId));
         }
 
         [HttpGet("{customerId:int}")]

@@ -10,7 +10,7 @@
 }
 else
 {
-    <div class="vstack gap-3">
+    <div class="vstack">
         <div class="p-2">
             <label class="p-1">Invoice Id:</label>
             <span>@invoice.InvoiceId</span>
@@ -45,7 +45,9 @@ else
                 <th scope="col">Invoice Detail Id</th>
                 <th scope="col">Invoice Id</th>
                 <th scope="col">Warehouse Id</th>
+                <th scope="col">Warehouse Name</th>
                 <th scope="col">Product Id</th>
+                <th scope="col">Product Name</th>
                 <th scope="col">Quantity</th>
                 <th scope="col">UnitPrice</th>
                 <th scope="col">Total</th>
@@ -58,7 +60,9 @@ else
                     <td>@invoiceDetail.InvoiceDetailId</td>
                     <td>@invoiceDetail.InvoiceId</td>
                     <td>@invoiceDetail.WarehouseId</td>
+                    <td>@invoiceDetail.WarehouseName</td>
                     <td>@invoiceDetail.ProductId</td>
+                    <td>@invoiceDetail.ProductName</td>
                     <td>@invoiceDetail.Quantity</td>
                     <td>@invoiceDetail.UnitPrice</td>
                     <td>@invoiceDetail.Total</td>

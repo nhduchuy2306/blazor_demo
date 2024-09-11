@@ -65,4 +65,10 @@ public class SalesInvoiceService : ISalesInvoiceService
         }
         return _mapper.Map<IEnumerable<InvoiceDetailDTO>>(invoiceDetails);
     }
+
+    public IEnumerable<SalesInvoiceDTO> GetSalesByCustomerId(int customerId)
+    {
+        var invoices = _salesInvoiceRepository.GetSalesByCustomerId(customerId);
+        return _mapper.Map<IEnumerable<SalesInvoiceDTO>>(invoices);
+    }
 }
