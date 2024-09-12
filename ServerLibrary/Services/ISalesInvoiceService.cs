@@ -9,4 +9,7 @@ public interface ISalesInvoiceService
     void Create(SalesInvoiceInputDTO salesInvoiceInputDTO);
     IEnumerable<InvoiceDetailDTO> GetInvoiceDetailsByInvoiceId(int invoiceId);
     IEnumerable<SalesInvoiceDTO> GetSalesByCustomerId(int customerId);
+    IEnumerable<SalesPerMonthDto> GetSalesPerMonths();
+    IEnumerable<SalesInvoiceDTO> GetSalesInvoicesData(DateOnly fromDate, DateOnly toDate);
+    byte[] GenerateExcelReport(IEnumerable<SalesInvoiceDTO> salesInvoices);
 }

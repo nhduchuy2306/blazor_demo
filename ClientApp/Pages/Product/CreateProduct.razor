@@ -1,0 +1,65 @@
+﻿@page "/product/create"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<h3>Create Product</h3>
+
+@if (saveError)
+{
+    <p class="text-danger">Unable to save the product. Please try again.</p>
+}
+
+<EditForm Model="newProduct" OnValidSubmit="HandleValidSubmit" FormName="product">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="productCode">Product Code</label>
+        <InputText id="productCode" class="form-control" @bind-Value="newProduct.ProductCode" />
+        <ValidationMessage For="@(() => newProduct.ProductCode)" />
+    </div>
+
+    <div class="form-group">
+        <label for="productName">Product Name</label>
+        <InputText id="productName" class="form-control" @bind-Value="newProduct.ProductName" />
+        <ValidationMessage For="@(() => newProduct.ProductName)" />
+    </div>
+
+    <div class="form-group">
+        <label for="unitPrice">Unit Price</label>
+        <InputNumber id="unitPrice" class="form-control" @bind-Value="newProduct.UnitPrice" />
+        <ValidationMessage For="@(() => newProduct.UnitPrice)" />
+    </div>
+
+    <div style="margin-top: 10px">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a class="btn btn-secondary" href="/product">Cancel</a>
+    </div>
+    
+</EditForm>
+
+@code {
+    private ProductInputUiModel newProduct = new ProductInputUiModel();
+    private bool saveError;
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            var response = await HttpClient.PostAsJsonAsync("api/products", newProduct);
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/product");
+            }
+            else
+            {
+                saveError = true;
+            }
+        }
+        catch
+        {
+            saveError = true;
+        }
+    }
+}

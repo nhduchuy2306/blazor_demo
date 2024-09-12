@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ServerLibrary.Dtos;
 using ServerLibrary.Models;
 
 namespace ServerLibrary.Repositories
@@ -26,9 +27,38 @@ namespace ServerLibrary.Repositories
 
         public IEnumerable<SalesInvoice> GetSalesByCustomerId(int customerId)
         {
-            return _context.Set<SalesInvoice>()
+            return _context.SalesInvoices
                 .Include(s => s.Customer)
                 .Where(s => s.CustomerId == customerId);
+        }
+
+        public IEnumerable<SalesPerMonthDto> GetSalesPerMonths()
+        {
+            return _context.SalesInvoices
+                .GroupBy(s => new { s.InvoiceDate.Year, s.InvoiceDate.Month })
+                .Select(s => new SalesPerMonthDto
+                {
+                    Year = s.Key.Year,
+                    Month = s.Key.Month,
+                    TotalSales = s.Sum(s => s.TotalAmount ?? 0)
+                })
+                .OrderBy(s => s.Year).ThenBy(s => s.Month)
+                .ToList();
+        }
+
+        public IEnumerable<SalesInvoice> GetSalesInvoicesData(DateOnly fromDate, DateOnly toDate)
+        {
+            return _context.SalesInvoices
+                .Include(s => s.Customer)
+                .Where(s => s.InvoiceDate >= fromDate && s.InvoiceDate <= toDate)
+                .ToList();
+        }
+
+        public new int Create(SalesInvoice salesInvoice)
+        {
+            _context.Add(salesInvoice);
+            _context.SaveChanges();
+            return salesInvoice.InvoiceId;
         }
     }
 }

@@ -1,0 +1,90 @@
+﻿@page "/warehouse/edit/{warehouseId:int}"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<h3>Edit Warehouse</h3>
+
+@if (getDataError)
+{
+    <p>Unable to load warehouse details.</p>
+}
+else if (warehouse is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="warehouse" OnValidSubmit="UpdateWarehouse" FormName="EditWarehouse">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label for="warehouseCode">Warehouse Code</label>
+            <InputText id="warehouseCode" class="form-control" @bind-Value="warehouse.WarehouseCode" />
+        </div>
+
+        <div class="form-group">
+            <label for="warehouseName">Warehouse Name</label>
+            <InputText id="warehouseName" class="form-control" @bind-Value="warehouse.WarehouseName" />
+        </div>
+
+        <div class="form-group">
+            <label for="location">Location</label>
+            <InputText id="location" class="form-control" @bind-Value="warehouse.Location" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int warehouseId { get; set; }
+    private WarehouseUiModel? warehouse;
+    private bool getDataError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var request = await HttpClient.GetAsync($"api/warehouses/{warehouseId}");
+            if (request.IsSuccessStatusCode)
+            {
+                warehouse = await request.Content.ReadFromJsonAsync<WarehouseUiModel>();
+            }
+            else
+            {
+                getDataError = true;
+            }
+        }
+        catch (Exception)
+        {
+            getDataError = true;
+        }
+    }
+
+    private async Task UpdateWarehouse()
+    {
+        try
+        {
+            var response = await HttpClient.PutAsJsonAsync($"api/warehouses/{warehouseId}", warehouse);
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/warehouse");
+            }
+            else
+            {
+                getDataError = true;
+            }
+        }
+        catch (Exception)
+        {
+            getDataError = true;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/warehouse");
+    }
+}

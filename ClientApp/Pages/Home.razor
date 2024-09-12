@@ -1,0 +1,58 @@
+﻿@page "/"
+
+@inject HttpClient HttpClient
+@inject IJSRuntime JSRuntime
+
+<h3>Sales Dashboard</h3>
+
+<canvas id="salesChart" width="400" height="200"></canvas>
+<script>
+    function GenerateChart(chartData) {
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        console.log("abc" + ctx);
+        new Chart(ctx, {
+            type: 'bar',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var salesData = await HttpClient.GetFromJsonAsync<List<SalesPerMonthUiModel>>("api/salesinvoices/salespermonth");
+            await DrawSalesChart(salesData ?? []);
+        }
+    }
+
+    private async Task DrawSalesChart(List<SalesPerMonthUiModel> salesData)
+    {
+        var labels = salesData.Select(sd => $"{sd.Month}/{sd.Year}").ToArray();
+        var salesValues = salesData.Select(sd => sd.TotalSales).ToArray();
+
+        var chartData = new
+        {
+            labels,
+            datasets = new[]
+            {
+                new
+                {
+                    label = "Sales",
+                    data = salesValues,
+                    backgroundColor = "#4CAF50"
+                }
+            }
+        };
+
+        await JSRuntime.InvokeVoidAsync("GenerateChart", chartData);
+    }
+}

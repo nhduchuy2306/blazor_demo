@@ -1,0 +1,63 @@
+﻿@page "/customer/create"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<h3>Create Customer</h3>
+
+@if (saveError)
+{
+    <p class="text-danger">Unable to save customer. Please try again.</p>
+}
+
+<EditForm Model="newCustomer" OnValidSubmit="HandleValidSubmit" FormName="Customer">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="customerCode">Customer Code</label>
+        <InputText id="customerCode" class="form-control" @bind-Value="newCustomer.CustomerCode" />
+        <ValidationMessage For="@(() => newCustomer.CustomerCode)" />
+    </div>
+
+    <div class="form-group">
+        <label for="customerName">Customer Name</label>
+        <InputText id="customerName" class="form-control" @bind-Value="newCustomer.CustomerName" />
+        <ValidationMessage For="@(() => newCustomer.CustomerName)" />
+    </div>
+
+    <div class="form-group">
+        <label for="contactInfo">Contact Info</label>
+        <InputText id="contactInfo" class="form-control" @bind-Value="newCustomer.ContactInfo" />
+        <ValidationMessage For="@(() => newCustomer.ContactInfo)" />
+    </div>
+
+    <div class="form-group">
+        <label for="address">Address</label>
+        <InputText id="address" class="form-control" @bind-Value="newCustomer.Address" />
+        <ValidationMessage For="@(() => newCustomer.Address)" />
+    </div>
+
+    <div class="form-action" style="margin-top: 10px">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a class="btn btn-secondary" href="/customer">Cancel</a>
+    </div>
+</EditForm>
+
+@code {
+    private CustomerInputUiModel newCustomer = new CustomerInputUiModel();
+    private bool saveError;
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await HttpClient.PostAsJsonAsync("api/customers", newCustomer);
+
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/customer");
+        }
+        else
+        {
+            saveError = true;
+        }
+    }
+}

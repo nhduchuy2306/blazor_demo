@@ -22,6 +22,25 @@ namespace Server.Controllers
             return Ok(salesInvoices);
         }
 
+        [HttpGet("export")]
+        public IActionResult ExportSalesReport(DateTime fromDate, DateTime toDate)
+        {
+            DateOnly fromDateOnly = DateOnly.FromDateTime(fromDate);
+            DateOnly toDateOnly = DateOnly.FromDateTime(toDate);
+
+            var salesInvoices = _salesInvoiceService.GetSalesInvoicesData(fromDateOnly, toDateOnly);
+            var excelData = _salesInvoiceService.GenerateExcelReport(salesInvoices);
+
+            return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "SalesReport.xlsx");
+        }
+
+        [HttpGet("salespermonth")]
+        public ActionResult<IEnumerable<SalesPerMonthDto>> GetSalesInvoicesPerMonth()
+        {
+            var salesInvoices = _salesInvoiceService.GetSalesPerMonths();
+            return Ok(salesInvoices);
+        }
+
         [HttpGet("{salesInvoiceId:int}")]
         public ActionResult<SalesInvoiceDTO> GetSalesInvoiceById(int salesInvoiceId)
         {

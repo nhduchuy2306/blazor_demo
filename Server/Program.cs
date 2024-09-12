@@ -16,6 +16,15 @@ builder.Services.AddDbContext<ManagementdbContext>(
         opt.UseSqlServer(connectionString);
     }
 );
+builder.Services.AddCors(opt => 
+{
+    opt.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 // Add dependency injection
 builder.Services.AddScoped<CustomerRepository>();
@@ -33,6 +42,12 @@ builder.Services.AddScoped<IWarehouseProductService, WarehouseProductService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 
 var app = builder.Build();
+
+app.UseCors(builder => builder
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

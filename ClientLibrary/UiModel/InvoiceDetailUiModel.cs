@@ -7,6 +7,7 @@
         public int InvoiceId { get; set; }
 
         public int WarehouseId { get; set; }
+
         public string WarehouseName { get; set; } = null!;
 
         public int ProductId { get; set; }

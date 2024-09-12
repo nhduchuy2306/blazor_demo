@@ -1,0 +1,46 @@
+﻿@page "/export-report"
+
+@inject IJSRuntime JSRuntime
+@inject HttpClient HttpClient
+
+<h3>Export Sales Report</h3>
+
+<div class="form-group">
+    <label for="fromDate">From Date:</label>
+    <input type="date" id="fromDate" @bind="fromDate" class="form-control" />
+</div>
+
+<div class="form-group">
+    <label for="toDate">To Date:</label>
+    <input type="date" id="toDate" @bind="toDate" class="form-control" />
+</div>
+
+<button class="btn btn-primary" style="margin: 10px 0" @onclick="ExportReport">Export to Excel</button>
+
+<script>
+    function downloadFile(fileName, content) {
+        var blob = new Blob([new Uint8Array(content)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+    }
+</script>
+
+@code {
+    private DateTime fromDate = DateTime.Today.AddMonths(-1);
+    private DateTime toDate = DateTime.Today;
+
+    private async Task ExportReport()
+    {
+        var url = $"api/salesinvoices/export?fromDate={fromDate:yyyy-MM-dd}&toDate={toDate:yyyy-MM-dd}";
+        var response = await HttpClient.GetAsync(url);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var fileName = "SalesReport.xlsx";
+            var fileContent = await response.Content.ReadAsByteArrayAsync();
+            await JSRuntime.InvokeVoidAsync("downloadFile", fileName, fileContent);
+        }
+    }
+}

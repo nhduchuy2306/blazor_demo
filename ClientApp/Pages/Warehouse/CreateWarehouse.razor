@@ -1,0 +1,70 @@
+﻿@page "/warehouse/create"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<h3>Create New Warehouse</h3>
+
+@if (getDataError)
+{
+    <p>Unable to create the warehouse.</p>
+}
+else
+{
+    <EditForm Model="warehouse" OnValidSubmit="HandleValidSubmit" FormName="CreateWarehouse">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label for="warehouseCode">Warehouse Code</label>
+            <InputText id="warehouseCode" class="form-control" @bind-Value="warehouse.WarehouseCode" />
+            <ValidationMessage For="@(() => warehouse.WarehouseCode)" />
+        </div>
+
+        <div class="form-group">
+            <label for="warehouseName">Warehouse Name</label>
+            <InputText id="warehouseName" class="form-control" @bind-Value="warehouse.WarehouseName" />
+            <ValidationMessage For="@(() => warehouse.WarehouseName)" />
+        </div>
+
+        <div class="form-group">
+            <label for="location">Location</label>
+            <InputText id="location" class="form-control" @bind-Value="warehouse.Location" />
+            <ValidationMessage For="@(() => warehouse.Location)" />
+        </div>
+
+        <div style="margin: 10px 0">
+            <button type="submit" class="btn btn-primary">Create</button>
+            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    private WarehouseUiModel warehouse = new WarehouseUiModel();
+    private bool getDataError;
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            var response = await HttpClient.PostAsJsonAsync("api/warehouses", warehouse);
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/warehouse");
+            }
+            else
+            {
+                getDataError = true;
+            }
+        }
+        catch (Exception)
+        {
+            getDataError = true;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/warehouse");
+    }
+}
