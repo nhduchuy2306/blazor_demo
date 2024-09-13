@@ -7,13 +7,23 @@
 <h3>Invoice</h3>
 
 
-@if (getDataError || invoices is null)
+@if (getDataError)
 {
     <p>Unable to get data.</p>
 }
+else if (invoices is null)
+{
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+}
 else
 {
-    <a class="btn btn-info" href="/invoice/create">Create Customer</a>
+    <a class="btn btn-info" href="/invoice/create">Create Invoice</a>
     <table class="table">
         <thead>
             <tr>
@@ -35,7 +45,7 @@ else
                     <td>@invoice.CustomerId</td>
                     <td>@invoice.TotalAmount</td>
                     <td>
-                        <a class="btn btn-light" href="/invoice/detail/@invoice.CustomerId">Detail</a>
+                        <a class="btn btn-light" href="/invoice/detail/@invoice.InvoiceId">Detail</a>
                     </td>
                 </tr>
             }

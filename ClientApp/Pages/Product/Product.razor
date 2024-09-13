@@ -6,9 +6,19 @@
 
 <h3>Product</h3>
 
-@if (getDataError || products is null)
+@if (getDataError)
 {
     <p>Unable to get data.</p>
+}
+else if (products is null)
+{
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
 }
 else
 {

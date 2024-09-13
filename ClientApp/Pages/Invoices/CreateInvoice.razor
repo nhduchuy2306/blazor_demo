@@ -1,4 +1,5 @@
 ﻿@page "/invoice/create"
+@using System.Text.Json
 
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
@@ -11,6 +12,10 @@
 }
 else
 {
+    if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p style="color: red">@errorMessage</p>
+    }
     <EditForm Model="invoice" OnValidSubmit="SubmitInvoice" FormName="CreateInvoice">
         <DataAnnotationsValidator />
 
@@ -28,7 +33,7 @@ else
             <h4>Select Products</h4>
             <div class="form-group">
                 <label for="product">Select Product</label>
-                <InputSelect id="product" class="form-control" @bind-Value="selectedProductId">
+                <InputSelect id="product" class="form-control" @bind-Value="selectedProductId" @bind-Value:after="OnProductChange">
                     <option value="">--- Select Product ---</option>
                     @foreach (var product in products)
                     {
@@ -42,6 +47,20 @@ else
                 <InputNumber id="quantity" class="form-control" @bind-Value="quantity" />
             </div>
 
+            @if (warehouseProducts != null && warehouseProducts.Any())
+            {
+                <div class="form-group">
+                    <label for="warehouse">Available Warehouse</label>
+                    <InputSelect id="warehouse" class="form-control" @bind-Value="selectedWarehouseId">
+                        <option value="">--- Select Warehouse ---</option>
+                        @foreach (var warehouseProduct in warehouseProducts)
+                        {
+                            <option value="@warehouseProduct.WarehouseId">@warehouseProduct.WarehouseName</option>
+                        }
+                    </InputSelect>
+                </div>
+            }
+
             <button type="button" class="btn btn-info" style="margin:10px 0" @onclick="AddProduct">Add Product</button>
 
             <h4>Selected Products</h4>
@@ -49,6 +68,7 @@ else
                 <thead>
                     <tr>
                         <th>Product</th>
+                        <th>Warehouse</th>
                         <th>Quantity</th>
                         <th>Unit Price</th>
                         <th>Total</th>
@@ -60,6 +80,7 @@ else
                     {
                         <tr>
                             <td>@detail.ProductName</td>
+                            <td>@detail.WarehouseName</td>
                             <td>@detail.Quantity</td>
                             <td>@detail.UnitPrice</td>
                             <td>@(detail.Quantity * detail.UnitPrice)</td>
@@ -83,13 +104,16 @@ else
     </EditForm>
 }
 @code {
-    private SalesInvoiceInputUiModel invoice = new SalesInvoiceInputUiModel();
     private IEnumerable<CustomerUiModel>? customers;
     private IEnumerable<ProductUiModel>? products;
-    private int selectedProductId;
-    private int quantity = 1;
+    private IEnumerable<WarehouseProductUiModel>? warehouseProducts;
     private List<InvoiceDetailUiModel> selectedProducts = new List<InvoiceDetailUiModel>();
+    private SalesInvoiceInputUiModel invoice = new SalesInvoiceInputUiModel();
+    private int selectedProductId;
+    private int selectedWarehouseId;
+    private int quantity = 1;
     private string? selectedCustomerName = "";
+    private string? errorMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,9 +142,10 @@ else
         }
 
         var product = products?.FirstOrDefault(p => p.ProductId == selectedProductId);
-        if (product != null)
+        var warehouseProduct = warehouseProducts?.FirstOrDefault(w => w.WarehouseId == selectedWarehouseId);
+        if (product != null && warehouseProduct != null)
         {
-            var existingDetail = selectedProducts.FirstOrDefault(d => d.ProductId == product.ProductId);
+            var existingDetail = selectedProducts.FirstOrDefault(d => d.ProductId == product.ProductId && d.WarehouseId == warehouseProduct.WarehouseId);
             if (existingDetail != null)
             {
                 existingDetail.Quantity += quantity;
@@ -132,6 +157,8 @@ else
                     {
                         ProductId = product.ProductId,
                         ProductName = product.ProductName,
+                        WarehouseId = warehouseProduct.WarehouseId,
+                        WarehouseName = warehouseProduct.WarehouseName,
                         Quantity = quantity,
                         UnitPrice = product.UnitPrice,
                         Total = quantity * product.UnitPrice
@@ -142,6 +169,7 @@ else
         invoice.TotalAmount = selectedProducts.Sum(d => d.Quantity * d.UnitPrice);
 
         selectedProductId = 0;
+        selectedWarehouseId = 0;
         quantity = 1;
     }
 
@@ -160,6 +188,25 @@ else
         if (response.IsSuccessStatusCode)
         {
             NavigationManager.NavigateTo("/invoice");
+        }
+        else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            using (JsonDocument doc = JsonDocument.Parse(error))
+            {
+                JsonElement root = doc.RootElement;
+                string errorMessage = root.GetProperty("message").GetString();
+                this.errorMessage = errorMessage;
+            }
+        }
+    }
+
+    private async Task OnProductChange()
+    {
+        var warehouseRequest = await HttpClient.GetAsync($"api/products/{selectedProductId}/warehouses");
+        if (warehouseRequest.IsSuccessStatusCode)
+        {
+            warehouseProducts = await warehouseRequest.Content.ReadFromJsonAsync<IEnumerable<WarehouseProductUiModel>>();
         }
     }
 }

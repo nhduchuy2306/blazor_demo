@@ -19,7 +19,7 @@ namespace ServerLibrary.Repositories
             return _context.WarehouseProducts
                 .Include(whp => whp.Warehouse)
                 .Include(whp => whp.Product)
-                .Where(whp => whp.ProductId == productId)
+                .Where(whp => whp.ProductId == productId && whp.StockQuantity > 0)
                 .ToList();
         }
 

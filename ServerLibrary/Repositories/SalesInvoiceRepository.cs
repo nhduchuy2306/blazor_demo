@@ -54,11 +54,11 @@ namespace ServerLibrary.Repositories
                 .ToList();
         }
 
-        public new int Create(SalesInvoice salesInvoice)
+        public new SalesInvoice Create(SalesInvoice salesInvoice)
         {
             _context.Add(salesInvoice);
             _context.SaveChanges();
-            return salesInvoice.InvoiceId;
+            return salesInvoice;
         }
     }
 }

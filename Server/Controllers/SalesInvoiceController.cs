@@ -72,9 +72,21 @@ namespace Server.Controllers
         [HttpPost]
         public ActionResult CreateSalesInvoice([FromBody] SalesInvoiceInputDTO salesInvoice)
         {
-            _salesInvoiceService.Create(salesInvoice);
-            return StatusCode(StatusCodes.Status201Created);
+            try
+            {
+                _salesInvoiceService.Create(salesInvoice);
+                return StatusCode(StatusCodes.Status201Created);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
+
 
         [HttpPut("{salesInvoiceId:int}")]
         public ActionResult UpdateSalesInvoice(int salesInvoiceId, [FromBody] SalesInvoiceInputDTO salesInvoice)

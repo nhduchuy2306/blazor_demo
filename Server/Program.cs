@@ -33,6 +33,7 @@ builder.Services.AddScoped<SalesInvoiceRepository>();
 builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<WarehouseProductRepository>();
 builder.Services.AddScoped<WarehouseRepository>();
+builder.Services.AddScoped<MyTransaction>();
 
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IInvoiceDetailService, InvoiceDetailService>();

@@ -1,30 +1,40 @@
 using AutoMapper;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using ServerLibrary.Dtos;
 using ServerLibrary.Models;
 using ServerLibrary.Repositories;
+using System.Data;
 
 public class SalesInvoiceService : ISalesInvoiceService
 {
     private readonly SalesInvoiceRepository _salesInvoiceRepository;
+    private readonly ProductRepository _productRepository;
     private readonly InvoiceDetailRepository _invoiceDetailRepository;
     private readonly WarehouseRepository _warehouseRepository;
     private readonly WarehouseProductRepository _warehouseProductRepository;
+    private readonly MyTransaction _transaction;
     private readonly IMapper _mapper;
+    
 
     public SalesInvoiceService(
         SalesInvoiceRepository salesInvoiceRepository,
+        ProductRepository productRepository,
         InvoiceDetailRepository invoiceDetailRepository,
         WarehouseRepository warehouseRepository,
         WarehouseProductRepository warehouseProductRepository,
+        MyTransaction transaction,
         IMapper mapper
+        
     )
     {
         _salesInvoiceRepository = salesInvoiceRepository;
+        _productRepository = productRepository;
         _invoiceDetailRepository = invoiceDetailRepository;
         _warehouseRepository = warehouseRepository;
         _warehouseProductRepository = warehouseProductRepository;
+        _transaction = transaction;
         _mapper = mapper;
     }
 
@@ -47,6 +57,8 @@ public class SalesInvoiceService : ISalesInvoiceService
 
     public void Create(SalesInvoiceInputDTO salesInvoiceInputDTO)
     {
+        using var transaction = _transaction.BeginTransaction();
+
         var invoiceDetails = salesInvoiceInputDTO.InvoiceDetails;
         var salesInvoice = new SalesInvoice
         {
@@ -55,30 +67,59 @@ public class SalesInvoiceService : ISalesInvoiceService
             CustomerId = salesInvoiceInputDTO.CustomerId,
             TotalAmount = salesInvoiceInputDTO.TotalAmount,
         };
-        int invoiceId = _salesInvoiceRepository.Create(salesInvoice);
 
-        foreach (var saleDetail in invoiceDetails)
+        SalesInvoice invoice = new SalesInvoice();
+
+        try
         {
-            var invoiceDetail = new InvoiceDetail
-            {
-                InvoiceId = invoiceId,
-                WarehouseId = saleDetail.WarehouseId,
-                ProductId = saleDetail.ProductId,
-                Quantity = saleDetail.Quantity,
-                UnitPrice = saleDetail.UnitPrice,
-                Total = saleDetail.Total,
-            };
-            _invoiceDetailRepository.Create(invoiceDetail);
+            // If all stock checks pass, create the sales invoice and retrieve the ID
+            invoice = _salesInvoiceRepository.Create(salesInvoice);
 
-            var warehouseProduct = _warehouseProductRepository.GetById(saleDetail.WarehouseId, saleDetail.ProductId);
-
-            if (warehouseProduct != null)
+            // Now create invoice details and update stock quantities
+            foreach (var saleDetail in invoiceDetails)
             {
-                warehouseProduct.StockQuantity -= saleDetail.Quantity;
-                _warehouseProductRepository.Update(warehouseProduct);
+                var invoiceDetail = new InvoiceDetail
+                {
+                    InvoiceId = invoice.InvoiceId,
+                    WarehouseId = saleDetail.WarehouseId,
+                    ProductId = saleDetail.ProductId,
+                    Quantity = saleDetail.Quantity,
+                    UnitPrice = saleDetail.UnitPrice,
+                    Total = saleDetail.Total,
+                };
+                _invoiceDetailRepository.Create(invoiceDetail);
+
+                // Fetch the product from the warehouse and update stock quantity
+                var warehouseProduct = _warehouseProductRepository.GetById(saleDetail.WarehouseId, saleDetail.ProductId);
+
+                if (warehouseProduct != null)
+                {
+                    var remainingQuantity = warehouseProduct.StockQuantity - saleDetail.Quantity;
+                    if (remainingQuantity < 0)
+                    {
+                        var product = _productRepository.GetById(saleDetail.ProductId);
+                        var warehouse = _warehouseRepository.GetById(saleDetail.WarehouseId);
+                        throw new InvalidOperationException($"Insufficient stock for Product: [{product?.ProductName ?? ""}] in Warehouse: [{warehouse?.WarehouseName ?? ""}]");
+                    } 
+                    else
+                    {
+                        warehouseProduct.StockQuantity -= saleDetail.Quantity;
+                        _warehouseProductRepository.Update(warehouseProduct);
+                    }
+                }
             }
+
+            // Commit the transaction
+            transaction.Commit();
+        }
+        catch (Exception ex)
+        {
+            // If an exception occurs, rollback the transaction
+            transaction.Rollback();
+            throw new InvalidOperationException(ex.Message);
         }
     }
+
 
     public void Update(int salesInvoiceId, SalesInvoiceInputDTO salesInvoiceInputDTO)
     {
