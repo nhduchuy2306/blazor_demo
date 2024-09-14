@@ -1,7 +1,6 @@
-﻿namespace ServerLibrary.Dtos
+﻿namespace ServerLibrary.Dtos;
+
+public class WarehouseProductInputDTO
 {
-    public class WarehouseProductInputDTO
-    {
-        public int StockQuantity { get; set; }
-    }
+    public int StockQuantity { get; set; }
 }

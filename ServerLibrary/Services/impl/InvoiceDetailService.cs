@@ -3,6 +3,8 @@ using ServerLibrary.Dtos;
 using ServerLibrary.Models;
 using ServerLibrary.Repositories;
 
+namespace ServerLibrary.Services.impl;
+
 public class InvoiceDetailService : IInvoiceDetailService
 {
     private readonly InvoiceDetailRepository _invoiceDetailRepository;

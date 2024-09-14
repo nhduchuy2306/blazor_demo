@@ -1,17 +1,16 @@
-﻿namespace ServerLibrary.Dtos
+﻿namespace ServerLibrary.Dtos;
+
+public class SalesInvoiceDTO
 {
-    public class SalesInvoiceDTO
-    {
-        public int InvoiceId { get; set; }
+    public int InvoiceId { get; set; }
 
-        public string InvoiceNumber { get; set; } = null!;
+    public string InvoiceNumber { get; set; } = null!;
 
-        public DateOnly InvoiceDate { get; set; }
+    public DateOnly InvoiceDate { get; set; }
 
-        public int CustomerId { get; set; }
+    public int CustomerId { get; set; }
 
-        public string CustomerName { get; set; } = null!;
+    public string CustomerName { get; set; } = null!;
 
-        public decimal? TotalAmount { get; set; }
-    }
+    public decimal? TotalAmount { get; set; }
 }

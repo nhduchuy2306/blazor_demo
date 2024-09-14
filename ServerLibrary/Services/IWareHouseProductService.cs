@@ -1,5 +1,7 @@
 using ServerLibrary.Dtos;
 
+namespace ServerLibrary.Services;
+
 public interface IWarehouseProductService
 {
     WarehouseProductDTO GetById(int productId, int warehouseId);

@@ -1,5 +1,7 @@
 using ServerLibrary.Dtos;
 
+namespace ServerLibrary.Services;
+
 public interface IWarehouseService
 {
     WarehouseDTO GetByName(string warehouseName);

@@ -1,11 +1,10 @@
 using AutoMapper;
 using ClosedXML.Excel;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using ServerLibrary.Dtos;
 using ServerLibrary.Models;
 using ServerLibrary.Repositories;
-using System.Data;
+
+namespace ServerLibrary.Services.impl;
 
 public class SalesInvoiceService : ISalesInvoiceService
 {

@@ -1,11 +1,10 @@
 ﻿using ServerLibrary.Models;
 
-namespace ServerLibrary.Repositories
+namespace ServerLibrary.Repositories;
+
+public class InvoiceDetailRepository : Repository<InvoiceDetail, int>
 {
-    public class InvoiceDetailRepository : Repository<InvoiceDetail, int>
+    public InvoiceDetailRepository(ManagementdbContext context) : base(context)
     {
-        public InvoiceDetailRepository(ManagementdbContext context) : base(context)
-        {
-        }
     }
 }

@@ -1,12 +1,11 @@
-﻿namespace ServerLibrary.Dtos
+﻿namespace ServerLibrary.Dtos;
+
+public class SalesInvoiceInputDTO
 {
-    public class SalesInvoiceInputDTO
-    {
 
-        public int CustomerId { get; set; }
+    public int CustomerId { get; set; }
 
-        public decimal? TotalAmount { get; set; }
+    public decimal? TotalAmount { get; set; }
 
-        public List<InvoiceDetailInputDTO> InvoiceDetails { get; set; } = new List<InvoiceDetailInputDTO>();
-    }
+    public List<InvoiceDetailInputDTO> InvoiceDetails { get; set; } = new List<InvoiceDetailInputDTO>();
 }

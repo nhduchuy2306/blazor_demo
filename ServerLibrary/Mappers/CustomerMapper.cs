@@ -2,14 +2,16 @@
 using ServerLibrary.Dtos;
 using ServerLibrary.Models;
 
-namespace ServerLibrary.Mappers
+namespace ServerLibrary.Mappers;
+
+public class CustomerMapper : Profile
 {
-    public class CustomerMapper : Profile
+    public CustomerMapper()
     {
-        public CustomerMapper()
-        {
-            CreateMap<Customer, CustomerDTO>().ReverseMap();
-            CreateMap<Customer, CustomerInputDTO>().ReverseMap();
-        }
+        CreateMap<Customer, CustomerDTO>()
+            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.RoleName))
+            .ReverseMap()
+            .ForMember(dest => dest.Role, opt => opt.Ignore());
+        CreateMap<Customer, CustomerInputDTO>().ReverseMap();
     }
 }

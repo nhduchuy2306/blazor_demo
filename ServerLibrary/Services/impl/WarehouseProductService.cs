@@ -3,6 +3,8 @@ using ServerLibrary.Dtos;
 using ServerLibrary.Models;
 using ServerLibrary.Repositories;
 
+namespace ServerLibrary.Services.impl;
+
 public class WarehouseProductService : IWarehouseProductService
 {
     private readonly WarehouseProductRepository _warehouseProductRepository;
