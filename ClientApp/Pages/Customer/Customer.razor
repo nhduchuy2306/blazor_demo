@@ -122,8 +122,8 @@ else
 
         if (salesInvoiceRequest.IsSuccessStatusCode)
         {
-            salesInvoices = salesInvoiceRequest.Content.ReadFromJsonAsync<IEnumerable<SalesInvoiceUiModel>>().Result;
-            if(salesInvoices.Count() > 0)
+            salesInvoices = await salesInvoiceRequest.Content.ReadFromJsonAsync<IEnumerable<SalesInvoiceUiModel>>();
+            if (salesInvoices != null && salesInvoices.Count() > 0)
             {
                 popup.ShowConfirmButton = false;
             }

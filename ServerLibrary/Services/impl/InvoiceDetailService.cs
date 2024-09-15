@@ -50,6 +50,12 @@ public class InvoiceDetailService : IInvoiceDetailService
         return _mapper.Map<InvoiceDetailDTO>(invoiceDetail);
     }
 
+    public IEnumerable<InvoiceDetailDTO> GetInvoiceDetailsByProductId(int productId)
+    {
+        var invoiceDetails = _invoiceDetailRepository.GetInvoiceDetailsByProductId(productId);
+        return _mapper.Map<IEnumerable<InvoiceDetailDTO>>(invoiceDetails);
+    }
+
     public void Update(int invoiceDetailId, InvoiceDetailInputDTO invoiceDetailInputDTO)
     {
         var invoiceDetail = _invoiceDetailRepository.GetById(invoiceDetailId);

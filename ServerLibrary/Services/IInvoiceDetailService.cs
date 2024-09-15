@@ -13,4 +13,6 @@ public interface IInvoiceDetailService
     void Update(int invoiceDetailId, InvoiceDetailInputDTO invoiceDetailInputDTO);
     
     void Create(InvoiceDetailInputDTO invoiceDetailInputDTO);
+
+    IEnumerable<InvoiceDetailDTO> GetInvoiceDetailsByProductId(int productId);
 }

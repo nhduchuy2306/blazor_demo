@@ -57,7 +57,6 @@ else
            OnConfirm="() => OnConfirmPopup(currentDeleteProductId)">
         @if (warehouseProducts != null && warehouseProducts.Count() > 0)
         {
-            <p>This product is in warehouse. Can not delete</p>
             <table class="table">
                 <thead>
                     <tr>
@@ -86,12 +85,34 @@ else
         {
             <p>Are you sure you want to delete this product?</p>
         }
+
+        @if (invoiceDetails != null && invoiceDetails.Count() > 0) {
+            <p>This product is in invoice. Can not delete</p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Invoice Id</th>
+                        <th scope="col">Product Id</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var invoiceDetail in invoiceDetails)
+                    {
+                        <tr>
+                            <td>@invoiceDetail.InvoiceId</td>
+                            <td>@invoiceDetail.ProductId</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
     </Popup>
 }
 
 @code {
     private IEnumerable<ProductUiModel>? products;
     private IEnumerable<WarehouseProductUiModel>? warehouseProducts;
+    private IEnumerable<InvoiceDetailUiModel>? invoiceDetails;
     private bool getDataError;
     private int currentDeleteProductId;
     private Popup? popup;
@@ -101,7 +122,6 @@ else
         try
         {
             var token = await IJSRuntime.InvokeAsync<string>("localStorage.getItem", "token");
-
             var request = new HttpRequestMessage(HttpMethod.Get, "api/products");
             request.Headers.Add("Authorization", $"Bearer {token}");
 
@@ -126,25 +146,39 @@ else
     {
         currentDeleteProductId = productId;
 
-        var response = await HttpClient.GetAsync($"api/products/{productId}/warehouses");
+        var warehouseResponse = await HttpClient.GetAsync($"api/products/{productId}/warehouses");
+        var invoiceDetailsResponse = await HttpClient.GetAsync($"api/products/{productId}/invoicedetails");
 
-        if (response.IsSuccessStatusCode)
+        if (warehouseResponse.IsSuccessStatusCode)
         {
-            warehouseProducts = await response.Content.ReadFromJsonAsync<IEnumerable<WarehouseProductUiModel>>();
-            if (warehouseProducts.Count() > 0)
-            {
-                popup.ShowConfirmButton = false;
-            }
-            else
-            {
-                popup.ShowConfirmButton = true;
-            }
+            warehouseProducts = await warehouseResponse.Content.ReadFromJsonAsync<IEnumerable<WarehouseProductUiModel>>();
         }
         else
         {
             warehouseProducts = null;
             popup.ShowConfirmButton = true;
         }
+
+        if (invoiceDetailsResponse.IsSuccessStatusCode)
+        {
+            invoiceDetails = await invoiceDetailsResponse.Content.ReadFromJsonAsync<IEnumerable<InvoiceDetailUiModel>>();
+        }
+        else
+        {
+            warehouseProducts = null;
+            popup.ShowConfirmButton = true;
+        }
+
+        if (invoiceDetails != null && invoiceDetails.Count() > 0)
+        {
+            popup.ShowConfirmButton = false;
+        }
+        else
+        {
+            popup.ShowConfirmButton = true;
+        }
+
+        
 
         popup?.Show();
     }

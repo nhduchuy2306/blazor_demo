@@ -8,12 +8,14 @@ namespace ServerLibrary.Services.impl;
 public class WarehouseService : IWarehouseService
 {
     private readonly WarehouseRepository _warehouseRepository;
+    private readonly WarehouseProductRepository _warehouseProductRepository;
     private readonly IMapper _mapper;
 
-    public WarehouseService(WarehouseRepository warehouseRepository, IMapper mapper)
+    public WarehouseService(WarehouseRepository warehouseRepository, IMapper mapper, WarehouseProductRepository warehouseProductRepository)
     {
         _warehouseRepository = warehouseRepository;
         _mapper = mapper;
+        _warehouseProductRepository = warehouseProductRepository;
     }
 
     public void Create(WarehouseInputDTO warehouse)

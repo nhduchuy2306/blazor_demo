@@ -22,7 +22,7 @@ public class ProductService : IProductService
     {
         var product = _mapper.Map<Product>(productInputDTO);
         var newProduct = _productRepository.Create(product);
-        if(newProduct != null)
+        if (newProduct != null)
         {
             var warehouseProduct = _warehouseProductRepository.GetById(productInputDTO.WarehouseId, newProduct.ProductId);
 
@@ -30,6 +30,16 @@ public class ProductService : IProductService
             {
                 warehouseProduct.StockQuantity += productInputDTO.StockQuantity;
                 _warehouseProductRepository.Update(warehouseProduct);
+            }
+            else
+            {
+                var newWarehouseProduct = new WarehouseProduct
+                {
+                    WarehouseId = productInputDTO.WarehouseId,
+                    ProductId = newProduct.ProductId,
+                    StockQuantity = productInputDTO.StockQuantity
+                };
+                _warehouseProductRepository.Create(newWarehouseProduct);
             }
         }
     }
@@ -41,6 +51,17 @@ public class ProductService : IProductService
         {
             throw new Exception("Product not found");
         }
+
+        var warehouseProducts = _warehouseProductRepository.GetWarehousesByProductId(productId);
+
+        if (warehouseProducts != null)
+        {
+            foreach (var warehouseProduct in warehouseProducts)
+            {
+                _warehouseProductRepository.Delete(warehouseProduct);
+            }
+        }
+
         _productRepository.Delete(product);
     }
 

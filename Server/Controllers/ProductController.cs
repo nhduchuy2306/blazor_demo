@@ -12,11 +12,13 @@ namespace Server.Controllers
     {
         private readonly IProductService _productService;
         private readonly IWarehouseProductService _warehouseProductService;
+        private readonly IInvoiceDetailService _invoiceDetailService;
 
-        public ProductController(IProductService productService, IWarehouseProductService warehouseProductService)
+        public ProductController(IProductService productService, IWarehouseProductService warehouseProductService, IInvoiceDetailService invoiceDetailService)
         {
             _productService = productService;
             _warehouseProductService = warehouseProductService;
+            _invoiceDetailService = invoiceDetailService;
         }
 
         [HttpGet]
@@ -47,6 +49,20 @@ namespace Server.Controllers
             {
                 var product = _warehouseProductService.GetWarehousesByProductId(productId);
                 return Ok(product);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
+        [HttpGet("{productId:int}/invoicedetails")]
+        public ActionResult<IEnumerable<InvoiceDetailDTO>> GetInvoiceDetailsByProductId(int productId)
+        {
+            try
+            {
+                var invoices = _invoiceDetailService.GetInvoiceDetailsByProductId(productId);
+                return Ok(invoices);
             }
             catch (Exception e)
             {
