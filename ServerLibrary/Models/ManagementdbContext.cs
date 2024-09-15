@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace ServerLibrary.Models;
 
@@ -31,7 +33,9 @@ public partial class ManagementdbContext : DbContext
     {
         modelBuilder.Entity<Customer>(entity =>
         {
-            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64D8B47C450C");
+            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64D8757AF101");
+
+            entity.HasIndex(e => e.CustomerCode, "UQ__Customer__06678521D5607DBC").IsUnique();
 
             entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.ContactInfo).HasMaxLength(255);
@@ -42,12 +46,12 @@ public partial class ManagementdbContext : DbContext
             entity.HasOne(d => d.Role).WithMany(p => p.Customers)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Customers__RoleI__403A8C7D");
+                .HasConstraintName("FK__Customers__RoleI__6383C8BA");
         });
 
         modelBuilder.Entity<InvoiceDetail>(entity =>
         {
-            entity.HasKey(e => e.InvoiceDetailId).HasName("PK__InvoiceD__1F15781132D259AB");
+            entity.HasKey(e => e.InvoiceDetailId).HasName("PK__InvoiceD__1F157811460EE9F5");
 
             entity.Property(e => e.Total).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
@@ -55,17 +59,17 @@ public partial class ManagementdbContext : DbContext
             entity.HasOne(d => d.Invoice).WithMany(p => p.InvoiceDetails)
                 .HasForeignKey(d => d.InvoiceId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__InvoiceDe__Invoi__49C3F6B7");
+                .HasConstraintName("FK__InvoiceDe__Invoi__6D0D32F4");
 
             entity.HasOne(d => d.WarehouseProduct).WithMany(p => p.InvoiceDetails)
                 .HasForeignKey(d => new { d.WarehouseId, d.ProductId })
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__InvoiceDetails__4AB81AF0");
+                .HasConstraintName("FK__InvoiceDetails__6E01572D");
         });
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6CDB30EA63A");
+            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6CD85C18F86");
 
             entity.Property(e => e.ProductCode).HasMaxLength(50);
             entity.Property(e => e.ProductName).HasMaxLength(100);
@@ -74,14 +78,14 @@ public partial class ManagementdbContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE1A3BD8B051");
+            entity.HasKey(e => e.RoleId).HasName("PK__Roles__8AFACE1A7763009E");
 
             entity.Property(e => e.RoleName).HasMaxLength(50);
         });
 
         modelBuilder.Entity<SalesInvoice>(entity =>
         {
-            entity.HasKey(e => e.InvoiceId).HasName("PK__SalesInv__D796AAB51B866C9D");
+            entity.HasKey(e => e.InvoiceId).HasName("PK__SalesInv__D796AAB5A37F55E5");
 
             entity.Property(e => e.InvoiceNumber).HasMaxLength(50);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
@@ -89,12 +93,12 @@ public partial class ManagementdbContext : DbContext
             entity.HasOne(d => d.Customer).WithMany(p => p.SalesInvoices)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__SalesInvo__Custo__46E78A0C");
+                .HasConstraintName("FK__SalesInvo__Custo__6A30C649");
         });
 
         modelBuilder.Entity<Warehouse>(entity =>
         {
-            entity.HasKey(e => e.WarehouseId).HasName("PK__Warehous__2608AFF94874FA43");
+            entity.HasKey(e => e.WarehouseId).HasName("PK__Warehous__2608AFF99075B951");
 
             entity.Property(e => e.Location).HasMaxLength(255);
             entity.Property(e => e.WarehouseCode).HasMaxLength(50);
@@ -103,17 +107,17 @@ public partial class ManagementdbContext : DbContext
 
         modelBuilder.Entity<WarehouseProduct>(entity =>
         {
-            entity.HasKey(e => new { e.WarehouseId, e.ProductId }).HasName("PK__Warehous__ED486395D31DD3D3");
+            entity.HasKey(e => new { e.WarehouseId, e.ProductId }).HasName("PK__Warehous__ED4863957501F414");
 
             entity.HasOne(d => d.Product).WithMany(p => p.WarehouseProducts)
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Warehouse__Produ__440B1D61");
+                .HasConstraintName("FK__Warehouse__Produ__6754599E");
 
             entity.HasOne(d => d.Warehouse).WithMany(p => p.WarehouseProducts)
                 .HasForeignKey(d => d.WarehouseId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Warehouse__Wareh__4316F928");
+                .HasConstraintName("FK__Warehouse__Wareh__66603565");
         });
 
         OnModelCreatingPartial(modelBuilder);

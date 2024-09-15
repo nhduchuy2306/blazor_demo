@@ -1,5 +1,70 @@
-﻿<h3>Login</h3>
+﻿@page "/"
+@layout EmptyLayout
+
+@inject HttpClient HttpClient
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<div class="login">
+    <h3>Login</h3>
+
+    @if (getDataError)
+    {
+        <div class="alert alert-danger" role="alert">
+            @message
+        </div>
+    }
+    else
+    {
+        <EditForm Model="loginModel" OnValidSubmit="HandleLogin" class="login-form">
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label for="customerCode" class="form-label">Customer Code</label>
+                <InputText id="customerCode" class="form-control" @bind-Value="loginModel.CustomerCode" />
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Login</button>
+        </EditForm>
+    }
+</div>
 
 @code {
+    private AuthenticationUiModel loginModel = new AuthenticationUiModel();
+    private bool getDataError;
+    private string message = string.Empty;
 
+    private async Task HandleLogin()
+    {
+        var request = await HttpClient.PostAsJsonAsync("api/authens", loginModel);
+
+        if (request.IsSuccessStatusCode)
+        {
+            var response = await request.Content.ReadFromJsonAsync<AuthenticationResponseUiModel>();
+            if (response == null)
+            {
+                getDataError = true;
+                message = "Invalid response from server";
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "token", response.AccessToken);
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "customerId", response.Account.CustomerId);
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "customerName", response.Account.CustomerName);
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "roleName", response.Account.roleName);
+                NavigationManager.NavigateTo("/home");
+            }
+        }
+        else
+        {
+            var error = await request.Content.ReadAsStringAsync();
+            message = error;
+            getDataError = true;
+        }
+    }
 }

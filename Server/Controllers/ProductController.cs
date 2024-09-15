@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ServerLibrary.Dtos;
 using ServerLibrary.Services;
 
@@ -75,7 +76,7 @@ namespace Server.Controllers
         }
 
         [HttpPut("{productId:int}")]
-        public ActionResult UpdateProduct(int productId, [FromBody] ProductInputDTO product)
+        public ActionResult UpdateProduct(int productId, [FromBody] ProductUpdateDTO product)
         {
             try
             {
@@ -88,6 +89,7 @@ namespace Server.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{productId:int}")]
         public ActionResult DeleteProduct(int productId)
         {

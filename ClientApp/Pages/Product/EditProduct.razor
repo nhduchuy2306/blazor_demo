@@ -22,6 +22,7 @@ else
     <EditForm Model="product" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
 
+        <!-- Product Details Section -->
         <div class="form-group">
             <label for="productCode">Product Code</label>
             <InputText id="productCode" class="form-control" @bind-Value="product.ProductCode" />
@@ -40,6 +41,33 @@ else
             <ValidationMessage For="@(() => product.UnitPrice)" />
         </div>
 
+        <!-- Warehouse Stock Section -->
+        @if(warehouses is not null)
+        {
+            <h4>Warehouse Stock</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Warehouse ID</th>
+                        <th>Warehouse Name</th>
+                        <th>Stock Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var warehouse in warehouses)
+                    {
+                        <tr>
+                            <td>@warehouse.WarehouseId</td>
+                            <td>@warehouse.WarehouseName</td>
+                            <td>
+                                <InputNumber class="form-control" @bind-Value="warehouse.StockQuantity" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
         <div style="margin-top: 10px">
             <button type="submit" class="btn btn-primary">Save Changes</button>
             <a class="btn btn-secondary" href="/product">Cancel</a>
@@ -49,7 +77,8 @@ else
 
 @code {
     [Parameter] public int productId { get; set; }
-    private ProductInputUiModel? product;
+    private ProductUpdateUiModel? product;
+    private IEnumerable<WarehouseProductUiModel>? warehouses;
     private bool loadError;
     private bool saveError;
 
@@ -57,13 +86,20 @@ else
     {
         try
         {
-            var response = await HttpClient.GetAsync($"api/products/{productId}");
+            var productResponse = await HttpClient.GetAsync($"api/products/{productId}");
+            var warehouseResponse = await HttpClient.GetAsync($"api/products/{productId}/warehouses");
 
-            if (response.IsSuccessStatusCode)
+            if (productResponse.IsSuccessStatusCode)
             {
-                product = await response.Content.ReadFromJsonAsync<ProductInputUiModel>();
+                product = await productResponse.Content.ReadFromJsonAsync<ProductUpdateUiModel>();
             }
-            else
+
+            if (warehouseResponse.IsSuccessStatusCode)
+            {
+                warehouses = await warehouseResponse.Content.ReadFromJsonAsync<IEnumerable<WarehouseProductUiModel>>();
+            }
+
+            if(!productResponse.IsSuccessStatusCode || !warehouseResponse.IsSuccessStatusCode)
             {
                 loadError = true;
             }
@@ -78,6 +114,21 @@ else
     {
         try
         {
+            var warehouseUiModels = new List<WarehouseUpdateUiModel>();
+            if(warehouses is not null)
+            {
+                foreach (var warehouse in warehouses)
+                {
+                    warehouseUiModels.Add(new WarehouseUpdateUiModel
+                    {
+                        WarehouseId = warehouse.WarehouseId,
+                        ProductId = productId,
+                        StockQuantity = warehouse.StockQuantity
+                    });
+                }
+            }
+
+            product!.Warehouses = warehouseUiModels;
             var response = await HttpClient.PutAsJsonAsync($"api/products/{productId}", product);
 
             if (response.IsSuccessStatusCode)

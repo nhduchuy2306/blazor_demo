@@ -1,4 +1,7 @@
-﻿namespace ServerLibrary.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace ServerLibrary.Models;
 
 public partial class SalesInvoice
 {

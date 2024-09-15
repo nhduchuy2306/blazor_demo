@@ -1,7 +1,9 @@
 ﻿@page "/warehouse/create"
+@using System.Net.Http.Headers
 
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
+@inject IJSRuntime IJSRuntime
 
 <h3>Create New Warehouse</h3>
 
@@ -47,6 +49,8 @@ else
     {
         try
         {
+            var token = await IJSRuntime.InvokeAsync<string>("localStorage.getItem", "token");
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await HttpClient.PostAsJsonAsync("api/warehouses", warehouse);
             if (response.IsSuccessStatusCode)
             {

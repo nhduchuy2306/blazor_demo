@@ -1,7 +1,9 @@
 ﻿@page "/customer/edit/{customerId:int}"
+@using System.Net.Http.Headers
 
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
+@inject IJSRuntime IJSRuntime
 
 <h3>Edit Customer @customerId</h3>
 
@@ -84,6 +86,8 @@ else
     {
         try
         {
+            var token = await IJSRuntime.InvokeAsync<string>("localStorage.getItem", "token");
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await HttpClient.PutAsJsonAsync($"api/customers/{customerId}", customer);
 
             if (response.IsSuccessStatusCode)

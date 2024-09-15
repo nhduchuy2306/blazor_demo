@@ -1,0 +1,102 @@
+﻿@page "/product/detail/{productId:int}"
+
+@inject HttpClient HttpClient
+
+
+<h3>DetailProduct</h3>
+
+@if (getDataError)
+{
+    <p>Unable to get data.</p>
+}
+else if (product is null || warehouseProducts is null)
+{
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+}
+else
+{
+    <div class="vstack">
+        <div class="p-2">
+            <label class="p-1">Product Id:</label>
+            <span>@product.ProductId</span>
+        </div>
+        <div class="p-2">
+            <label class="p-1">Product Code:</label>
+            <span>@product.ProductCode</span>
+        </div>
+        <div class="p-2">
+            <label class="p-1">Product Name:</label>
+            <span>@product.ProductName</span>
+        </div>
+        <div class="p-2">
+            <label class="p-1">Unit Price:</label>
+            <span>@product.UnitPrice</span>
+        </div>
+    </div>
+
+    <h3>Invoice Details</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Warehouse Id</th>
+                <th scope="col">Warehouse Name</th>
+                <th scope="col">Product Id</th>
+                <th scope="col">Product Name</th>
+                <th scope="col">Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var warehouse in warehouseProducts)
+            {
+                <tr>
+                    <td>@warehouse.WarehouseId</td>
+                    <td>@warehouse.WarehouseName</td>
+                    <td>@warehouse.ProductId</td>
+                    <td>@warehouse.ProductName</td>
+                    <td>@warehouse.StockQuantity</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int productId { get; set; }
+    private ProductUiModel? product;
+    private IEnumerable<WarehouseProductUiModel>? warehouseProducts;
+    private bool getDataError;
+    private bool shouldRender;
+
+    protected override bool ShouldRender() => shouldRender;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var productRequest = await HttpClient.GetAsync($"api/products/{productId}");
+        var warehouseProductRequest = await HttpClient.GetAsync($"api/products/{productId}/warehouses");
+
+        if (productRequest.IsSuccessStatusCode)
+        {
+            product = await productRequest.Content.ReadFromJsonAsync<ProductUiModel>();
+        }
+
+        if (warehouseProductRequest.IsSuccessStatusCode)
+        {
+            warehouseProducts = await warehouseProductRequest.Content.ReadFromJsonAsync<IEnumerable<WarehouseProductUiModel>>();
+        }
+
+        if (!productRequest.IsSuccessStatusCode || !warehouseProductRequest.IsSuccessStatusCode)
+        {
+            getDataError = true;
+        }
+
+        shouldRender = true;
+    }
+}

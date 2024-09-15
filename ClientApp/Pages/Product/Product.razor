@@ -1,8 +1,10 @@
 ﻿@page "/product"
 
 @using ClientApp.Pages.Popup
+@using System.Net.Http.Headers
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
+@inject IJSRuntime IJSRuntime
 
 <h3>Product</h3>
 
@@ -42,6 +44,7 @@ else
                     <td>@product.ProductName</td>
                     <td>@product.UnitPrice</td>
                     <td>
+                        <a class="btn btn-default" href="/product/detail/@product.ProductId">Detail</a>
                         <a class="btn btn-primary" href="/product/edit/@product.ProductId">Edit</a>
                         <button class="btn btn-danger" @onclick="() => ConfirmDelete(product.ProductId)">Delete</button>
                     </td>
@@ -90,26 +93,28 @@ else
     private IEnumerable<ProductUiModel>? products;
     private IEnumerable<WarehouseProductUiModel>? warehouseProducts;
     private bool getDataError;
-    private bool shouldRender;
     private int currentDeleteProductId;
     private Popup? popup;
-
-    protected override bool ShouldRender() => shouldRender;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var request = await HttpClient.GetAsync("api/products");
-            if (request.IsSuccessStatusCode)
+            var token = await IJSRuntime.InvokeAsync<string>("localStorage.getItem", "token");
+
+            var request = new HttpRequestMessage(HttpMethod.Get, "api/products");
+            request.Headers.Add("Authorization", $"Bearer {token}");
+
+            var response = await HttpClient.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
             {
-                products = await request.Content.ReadFromJsonAsync<IEnumerable<ProductUiModel>>();
+                products = await response.Content.ReadFromJsonAsync<IEnumerable<ProductUiModel>>();
             }
             else
             {
                 getDataError = true;
             }
-            shouldRender = true;
         }
         catch (Exception)
         {
@@ -117,15 +122,15 @@ else
         }
     }
 
-    private void ConfirmDelete(int productId)
+    private async Task ConfirmDelete(int productId)
     {
         currentDeleteProductId = productId;
 
-        var request = HttpClient.GetAsync($"api/products/{productId}/warehouses");
+        var response = await HttpClient.GetAsync($"api/products/{productId}/warehouses");
 
-        if (request.Result.IsSuccessStatusCode)
+        if (response.IsSuccessStatusCode)
         {
-            warehouseProducts = request.Result.Content.ReadFromJsonAsync<IEnumerable<WarehouseProductUiModel>>().Result;
+            warehouseProducts = await response.Content.ReadFromJsonAsync<IEnumerable<WarehouseProductUiModel>>();
             if (warehouseProducts.Count() > 0)
             {
                 popup.ShowConfirmButton = false;
@@ -151,6 +156,8 @@ else
 
     private async Task DeleteProduct(int productId)
     {
+        var token = await IJSRuntime.InvokeAsync<string>("localStorage.getItem", "token");
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var request = await HttpClient.DeleteAsync($"api/products/{productId}");
         if (request.IsSuccessStatusCode)
         {

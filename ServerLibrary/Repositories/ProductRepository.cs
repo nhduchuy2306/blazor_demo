@@ -12,4 +12,11 @@ public class ProductRepository : Repository<Product, int>
     {
         return _context.Products.SingleOrDefault(p => p.ProductName.Contains(productName));
     }
+
+    public new Product? Create(Product product)
+    {
+        _context.Products.Add(product);
+        _context.SaveChanges();
+        return product;
+    }
 }

@@ -8,18 +8,30 @@ namespace ServerLibrary.Services.impl;
 public class ProductService : IProductService
 {
     private readonly ProductRepository _productRepository;
+    private readonly WarehouseProductRepository _warehouseProductRepository;
     private readonly IMapper _mapper;
 
-    public ProductService(ProductRepository productRepository, IMapper mapper)
+    public ProductService(ProductRepository productRepository, WarehouseProductRepository warehouseProductRepository, IMapper mapper)
     {
         _productRepository = productRepository;
+        _warehouseProductRepository = warehouseProductRepository;
         _mapper = mapper;
     }
 
-    public void Create(ProductInputDTO product)
+    public void Create(ProductInputDTO productInputDTO)
     {
-        var productEntity = _mapper.Map<Product>(product);
-        _productRepository.Create(productEntity);
+        var product = _mapper.Map<Product>(productInputDTO);
+        var newProduct = _productRepository.Create(product);
+        if(newProduct != null)
+        {
+            var warehouseProduct = _warehouseProductRepository.GetById(productInputDTO.WarehouseId, newProduct.ProductId);
+
+            if (warehouseProduct != null)
+            {
+                warehouseProduct.StockQuantity += productInputDTO.StockQuantity;
+                _warehouseProductRepository.Update(warehouseProduct);
+            }
+        }
     }
 
     public void Delete(int productId)
@@ -58,15 +70,30 @@ public class ProductService : IProductService
         return _mapper.Map<IEnumerable<ProductDTO>>(productEntities);
     }
 
-    public void Update(int productId, ProductInputDTO product)
+    public void Update(int productId, ProductUpdateDTO productUpdateDTO)
     {
         var existingProduct = _productRepository.GetById(productId);
         if (existingProduct == null)
         {
             throw new Exception("Product not found");
         }
-        var productEntity = _mapper.Map<Product>(product);
-        productEntity.ProductId = productId;
-        _productRepository.Update(productEntity);
+
+        existingProduct.ProductCode = productUpdateDTO.ProductCode;
+        existingProduct.ProductName = productUpdateDTO.ProductName;
+        existingProduct.UnitPrice = productUpdateDTO.UnitPrice;
+        _productRepository.Update(existingProduct);
+
+        var warehouseProducts = productUpdateDTO.Warehouses;
+
+        foreach (var warehouseProduct in warehouseProducts)
+        {
+            var existingWarehouseProduct = _warehouseProductRepository.GetById(warehouseProduct.WarehouseId, warehouseProduct.ProductId);
+            if (existingWarehouseProduct == null)
+            {
+                throw new Exception("WarehouseProduct not found");
+            }
+            existingWarehouseProduct.StockQuantity = warehouseProduct.StockQuantity;
+            _warehouseProductRepository.Update(existingWarehouseProduct);
+        }
     }
 }

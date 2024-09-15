@@ -9,6 +9,7 @@ public class WarehouseMapper : Profile
     public WarehouseMapper()
     {
         CreateMap<Warehouse, WarehouseDTO>().ReverseMap();
+
         CreateMap<Warehouse, WarehouseInputDTO>().ReverseMap();
     }
 }

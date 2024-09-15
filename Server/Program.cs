@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using ServerLibrary.Dtos;
 using ServerLibrary.Models;
 using ServerLibrary.Repositories;
 using ServerLibrary.Services;
@@ -71,7 +73,7 @@ services.AddAuthorization(options =>
 {
     options.AddPolicy("Admin", policy => policy.RequireClaim("role", "admin"));
     options.AddPolicy("Customer", policy => policy.RequireClaim("role", "customer"));
-    options.AddPolicy("Tasker", policy => policy.RequireClaim("role", "tasker"));
+    options.AddPolicy("ShopEmployee", policy => policy.RequireClaim("role", "shopemployee"));
 });
 
 services.AddDbContext<ManagementdbContext>(opt =>
@@ -86,9 +88,11 @@ services.AddCors(opt =>
     {
         policy.AllowAnyOrigin()
             .AllowAnyMethod()
-            .AllowAnyHeader();
+        .AllowAnyHeader();
     });
 });
+
+services.Configure<JwtOptionsDTO>(configuration.GetSection("ApiSettings:JwtOptions"));
 
 services.AddScoped<CustomerRepository>();
 services.AddScoped<InvoiceDetailRepository>();
@@ -106,6 +110,7 @@ services.AddScoped<IProductService, ProductService>();
 services.AddScoped<IWarehouseProductService, WarehouseProductService>();
 services.AddScoped<IWarehouseService, WarehouseService>();
 services.AddScoped<IRoleService, RoleService>();
+services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 

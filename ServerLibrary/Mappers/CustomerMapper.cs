@@ -12,6 +12,7 @@ public class CustomerMapper : Profile
             .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.RoleName))
             .ReverseMap()
             .ForMember(dest => dest.Role, opt => opt.Ignore());
+
         CreateMap<Customer, CustomerInputDTO>().ReverseMap();
     }
 }

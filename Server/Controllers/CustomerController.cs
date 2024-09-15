@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ServerLibrary.Dtos;
 using ServerLibrary.Services;
 
@@ -56,6 +57,7 @@ namespace Server.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost(Name = "CreateCustomer")]
         public ActionResult CreateCustomer([FromBody] CustomerInputDTO customer)
         {
@@ -63,6 +65,7 @@ namespace Server.Controllers
             return StatusCode(StatusCodes.Status201Created);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{customerId:int}")]
         public ActionResult UpdateCustomer(int customerId, [FromBody] CustomerInputDTO customer)
         {
@@ -77,6 +80,7 @@ namespace Server.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{customerId:int}")]
         public ActionResult DeleteCustomer(int customerId)
         {

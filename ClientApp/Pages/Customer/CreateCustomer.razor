@@ -1,7 +1,11 @@
 ﻿@page "/customer/create"
+@using System.Text.Json
+@using System.Text
+@using System.Net.Http.Headers
 
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
+@inject IJSRuntime IJSRuntime
 
 <h3>Create Customer</h3>
 
@@ -37,6 +41,26 @@
         <ValidationMessage For="@(() => newCustomer.Address)" />
     </div>
 
+    <div class="form-group">
+        <label for="roleId">Role</label>
+        <select id="roleId" class="form-control" @bind="newCustomer.RoleId">
+            @if (roles != null)
+            {
+                foreach (var role in roles)
+                {
+                    <option value="@role.RoleId">@role.RoleName</option>
+                }
+            }
+        </select>
+        <ValidationMessage For="@(() => newCustomer.RoleId)" />
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <InputText id="password" class="form-control" @bind-Value="newCustomer.Password" />
+        <ValidationMessage For="@(() => newCustomer.Password)" />
+    </div>
+
     <div class="form-action" style="margin-top: 10px">
         <button type="submit" class="btn btn-primary">Create</button>
         <a class="btn btn-secondary" href="/customer">Cancel</a>
@@ -45,10 +69,28 @@
 
 @code {
     private CustomerInputUiModel newCustomer = new CustomerInputUiModel();
+    private IEnumerable<RoleUiModel>? roles;
+    private int roleId;
     private bool saveError;
+    private bool getDataError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await HttpClient.GetAsync("api/roles");
+        if (response.IsSuccessStatusCode)
+        {
+            roles = await response.Content.ReadFromJsonAsync<IEnumerable<RoleUiModel>>();
+        }
+        else
+        {
+            getDataError = true;
+        }
+    }
 
     private async Task HandleValidSubmit()
     {
+        var token = await IJSRuntime.InvokeAsync<string>("localStorage.getItem", "token");
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await HttpClient.PostAsJsonAsync("api/customers", newCustomer);
 
         if (response.IsSuccessStatusCode)

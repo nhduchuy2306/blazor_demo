@@ -1,8 +1,10 @@
 ﻿@page "/customer"
 
 @using ClientApp.Pages.Popup
+@using System.Net.Http.Headers
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
+@inject IJSRuntime IJSRuntime
 
 <h3>Customer</h3>
 
@@ -45,7 +47,7 @@ else
                     <td>@customer.Address</td>
                     <td>
                         <a class="btn btn-primary" href="/customer/edit/@customer.CustomerId">Edit</a>
-                        <button class="btn btn-danger" @onclick="() => ConfirmDelete(customer.CustomerId)">Delete</button>
+                        <button class="btn btn-danger" disabled="@(loginCustomerId == customer.CustomerId)" @onclick="() => ConfirmDelete(customer.CustomerId)">Delete</button>
                     </td>
                 </tr>
             }
@@ -91,11 +93,9 @@ else
     private IEnumerable<CustomerUiModel>? customers;
     private IEnumerable<SalesInvoiceUiModel>? salesInvoices;
     private bool getDataError;
-    private bool shouldRender;
     private int currentDeleteCustomerId;
+    private int loginCustomerId;
     private Popup? popup;
-
-    protected override bool ShouldRender() => shouldRender;
 
     protected override async Task OnInitializedAsync()
     {
@@ -110,7 +110,8 @@ else
             getDataError = true;
         }
 
-        shouldRender = true;
+        var customerId = await IJSRuntime.InvokeAsync<string>("localStorage.getItem", "customerId");
+        loginCustomerId = int.Parse(customerId);
     }
 
     private async Task ConfirmDelete(int customerId)
@@ -147,6 +148,8 @@ else
 
     private async Task DeleteCustomer(int customerId)
     {
+        var token = await IJSRuntime.InvokeAsync<string>("localStorage.getItem", "token");
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await HttpClient.DeleteAsync($"api/customers/{customerId}");
 
         if (response.IsSuccessStatusCode)

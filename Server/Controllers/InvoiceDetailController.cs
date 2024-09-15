@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ServerLibrary.Dtos;
 using ServerLibrary.Services;
 
@@ -41,34 +42,6 @@ namespace Server.Controllers
         {
             _invoiceDetailService.Create(invoiceDetail);
             return StatusCode(StatusCodes.Status201Created);
-        }
-
-        [HttpPut("{invoiceDetailId:int}")]
-        public ActionResult UpdateInvoiceDetail(int invoiceDetailId, [FromBody] InvoiceDetailInputDTO invoiceDetail)
-        {
-            try
-            {
-                _invoiceDetailService.Update(invoiceDetailId, invoiceDetail);
-                return Ok();
-            }
-            catch (KeyNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
-        }
-
-        [HttpDelete("{invoiceDetailId:int}")]
-        public ActionResult DeleteInvoiceDetail(int invoiceDetailId)
-        {
-            try
-            {
-                _invoiceDetailService.Delete(invoiceDetailId);
-                return Ok();
-            }
-            catch (KeyNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
         }
     }
 }

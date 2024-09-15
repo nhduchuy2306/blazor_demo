@@ -14,6 +14,7 @@ public class WarehouseProductMapper : Profile
             .ReverseMap()
             .ForMember(dest => dest.Warehouse, opt => opt.Ignore())
             .ForMember(dest => dest.Product, opt => opt.Ignore());
+
         CreateMap<WarehouseProduct, WarehouseProductInputDTO>();
     }
 }

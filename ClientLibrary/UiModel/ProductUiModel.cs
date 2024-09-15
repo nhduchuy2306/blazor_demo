@@ -1,13 +1,12 @@
-﻿namespace ClientLibrary.UiModel
+﻿namespace ClientLibrary.UiModel;
+
+public class ProductUiModel
 {
-    public class ProductUiModel
-    {
-        public int ProductId { get; set; }
+    public int ProductId { get; set; }
 
-        public string ProductCode { get; set; } = null!;
+    public string ProductCode { get; set; } = null!;
 
-        public string ProductName { get; set; } = null!;
+    public string ProductName { get; set; } = null!;
 
-        public decimal UnitPrice { get; set; }
-    }
+    public decimal UnitPrice { get; set; }
 }

@@ -1,8 +1,10 @@
 ﻿@page "/warehouse"
 
 @using ClientApp.Pages.Popup
+@using System.Net.Http.Headers
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
+@inject IJSRuntime IJSRuntime
 
 <h3>Warehouse</h3>
 
@@ -117,14 +119,14 @@ else
         }
     }
 
-    private void ConfirmDelete(int warehouseId)
+    private async Task ConfirmDelete(int warehouseId)
     {
         currentDeleteWarehouseId = warehouseId;
 
-        var request = HttpClient.GetAsync($"api/warehouses/{warehouseId}/products");
-        if (request.Result.IsSuccessStatusCode)
+        var request = await HttpClient.GetAsync($"api/warehouses/{warehouseId}/products");
+        if (request.IsSuccessStatusCode)
         {
-            warehouseProducts = request.Result.Content.ReadFromJsonAsync<IEnumerable<WarehouseProductUiModel>>().Result;
+            warehouseProducts = await request.Content.ReadFromJsonAsync<IEnumerable<WarehouseProductUiModel>>();
 
             if (warehouseProducts != null && warehouseProducts.Count() > 0)
             {
@@ -151,10 +153,12 @@ else
 
     private async Task DeleteProduct(int warehouseId)
     {
+        var token = await IJSRuntime.InvokeAsync<string>("localStorage.getItem", "token");
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var request = await HttpClient.DeleteAsync($"api/warehouses/{warehouseId}");
         if (request.IsSuccessStatusCode)
         {
-            NavigationManager.NavigateTo("/product", true);
+            NavigationManager.NavigateTo("/warehouse", true);
         }
         else
         {

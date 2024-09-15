@@ -87,34 +87,5 @@ namespace Server.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
-
-
-        [HttpPut("{salesInvoiceId:int}")]
-        public ActionResult UpdateSalesInvoice(int salesInvoiceId, [FromBody] SalesInvoiceInputDTO salesInvoice)
-        {
-            try
-            {
-                _salesInvoiceService.Update(salesInvoiceId, salesInvoice);
-                return Ok();
-            }
-            catch (KeyNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
-        }
-
-        [HttpDelete("{salesInvoiceId:int}")]
-        public ActionResult DeleteSalesInvoice(int salesInvoiceId)
-        {
-            try
-            {
-                _salesInvoiceService.Delete(salesInvoiceId);
-                return Ok();
-            }
-            catch (KeyNotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
-        }
     }
 }

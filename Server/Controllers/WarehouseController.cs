@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ServerLibrary.Dtos;
 using ServerLibrary.Services;
 
@@ -50,6 +51,7 @@ namespace Server.Controllers
             }
         }
 
+        [Authorize(Roles= "Admin")]
         [HttpPost]
         public ActionResult CreateWarehouse([FromBody] WarehouseInputDTO warehouse)
         {
@@ -57,6 +59,7 @@ namespace Server.Controllers
             return StatusCode(StatusCodes.Status201Created);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{warehouseId:int}")]
         public ActionResult UpdateWarehouse(int warehouseId, [FromBody] WarehouseInputDTO warehouse)
         {
@@ -71,6 +74,7 @@ namespace Server.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{warehouseId:int}")]
         public ActionResult DeleteWarehouse(int warehouseId)
         {

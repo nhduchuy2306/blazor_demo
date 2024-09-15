@@ -12,6 +12,7 @@ public class SalesInvoiceMapper : Profile
             .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.CustomerName))
             .ReverseMap()
             .ForMember(dest => dest.Customer, opt => opt.Ignore());
+
         CreateMap<SalesInvoice, SalesInvoiceInputDTO>().ReverseMap();
     }
 }
