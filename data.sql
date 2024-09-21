@@ -96,9 +96,9 @@ VALUES
 ('C004', 'Alice Brown', 'alice.brown@example.com', '321 Pine St, Miami', 'hashed_password_4', 1),  -- Customer Role
 ('C005', 'Charlie Green', 'charlie.green@example.com', '654 Cedar St, Chicago', 'hashed_password_5', 1),  -- Customer Role
 ('C006', 'David White', 'david.white@example.com', '987 Maple St, Los Angeles', 'hashed_password_6', 1),  -- Customer Role
-('SHOP01', 'Shop 1', 'shop@example.com', 'shop address', 'hashed_password_1', 2), -- Shop Employee Role
-('SHOP02', 'Shop 2', 'shop2@example.com', 'shop2 address', 'hashed_password_2', 2), -- Shop Employee Role
-('ADMIN01', 'Admin 1', 'admin@example.com', 'admin address', 'hashed_password_3', 3); -- Admin Role
+('SHOP01', 'Shop 1', 'shop@example.com', 'shop address', 'AQAAAAEAACcQAAAAEKi8ocaDPoq47q7XUvUw6i5S+0Zpga7WBuaIsuRvI5HnXDYTgH1sc9hDAliaZhhs2Q==', 2), -- Shop Employee Role
+('SHOP02', 'Shop 2', 'shop2@example.com', 'shop2 address', 'AQAAAAEAACcQAAAAEKi8ocaDPoq47q7XUvUw6i5S+0Zpga7WBuaIsuRvI5HnXDYTgH1sc9hDAliaZhhs2Q==', 2), -- Shop Employee Role
+('ADMIN01', 'Admin 1', 'admin@example.com', 'admin address', 'AQAAAAEAACcQAAAAEKi8ocaDPoq47q7XUvUw6i5S+0Zpga7WBuaIsuRvI5HnXDYTgH1sc9hDAliaZhhs2Q==', 3); -- Admin Role
 
 -- Insert data into Products
 INSERT INTO Products (ProductCode, ProductName, UnitPrice)
