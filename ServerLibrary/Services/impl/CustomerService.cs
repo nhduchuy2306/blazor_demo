@@ -94,26 +94,28 @@ public class CustomerService : ICustomerService
         var passwordHasher = new PasswordHasher<Customer>();
         var result = passwordHasher.VerifyHashedPassword(customer, customer.Password, authenticationDTO.Password);
 
-        if (result != PasswordVerificationResult.Success)
+        if (result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded)
+        {
+            AccountDTO accountModel = new AccountDTO
+            {
+                CustomerId = customer.CustomerId,
+                CustomerCode = customer.CustomerCode,
+                CustomerName = customer.CustomerName,
+                RoleId = customer.RoleId,
+                RoleName = customer.Role.RoleName
+            };
+
+            var token = _tokenService.GenerateToken(accountModel);
+
+            return new AuthenticationOutputDTO
+            {
+                Account = accountModel,
+                AccessToken = token
+            };
+        }
+        else
         {
             throw new KeyNotFoundException("Invalid customer code or password");
         }
-
-        AccountDTO accountModel = new AccountDTO
-        {
-            CustomerId = customer.CustomerId,
-            CustomerCode = customer.CustomerCode,
-            CustomerName = customer.CustomerName,
-            RoleId = customer.RoleId,
-            RoleName = customer.Role.RoleName
-        };
-
-        var token = _tokenService.GenerateToken(accountModel);
-
-        return new AuthenticationOutputDTO
-        {
-            Account = accountModel,
-            AccessToken = token
-        };
     }
 }
